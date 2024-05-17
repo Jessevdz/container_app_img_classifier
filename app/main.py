@@ -1,17 +1,25 @@
 from fastapi import FastAPI, File, UploadFile
 from PIL import Image
+import os
 import io
 import torch
 import torchvision.transforms as transforms
 from torchvision.models import EfficientNet_V2_S_Weights
 
+
+MODEL_PATH = "/app/efficientnet_v2_s.pth"
 app = FastAPI()
 
-model = torch.hub.load(
-    "pytorch/vision:v0.18.0",
-    "efficientnet_v2_s",
-    weights=EfficientNet_V2_S_Weights.DEFAULT,
-)
+
+if os.path.exists(MODEL_PATH):
+    model = torch.load(MODEL_PATH)
+else:
+    model = torch.hub.load(
+        "pytorch/vision:v0.18.0",
+        "efficientnet_v2_s",
+        weights=EfficientNet_V2_S_Weights.DEFAULT,
+    )
+    torch.save(model, MODEL_PATH)
 model.eval()
 
 transform = transforms.Compose(
